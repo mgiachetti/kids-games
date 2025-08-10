@@ -301,6 +301,7 @@
                 this.recognition = null;
                 this.synthesis = null;
                 this.lastActionWasSpeak = false;
+                this.processingAnswer = false;
                 
                 this.initElements();
                 this.initSpeechRecognition();
@@ -403,6 +404,7 @@
                 this.currentNumber = Math.floor(Math.random() * 101);
                 this.numberDisplay.textContent = this.currentNumber;
                 this.showFeedback('¡Nuevo número! Di el número que ves.', 'neutral');
+                this.processingAnswer = false;
                 this.lastActionWasSpeak = false;
             }
 
@@ -458,15 +460,20 @@
             }
 
             processVoiceInput(spokenText) {
+                if (this.processingAnswer) {
+                    return;
+                }
+                
                 const spokenNumber = this.spanishTextToNumber(spokenText);
                 
                 if (spokenNumber === this.currentNumber) {
+                    this.processingAnswer = true;
                     // Solo dar puntos si no fue después de usar el botón de hablar
                     if (!this.lastActionWasSpeak) {
                         this.score++;
                         this.saveScore();
+                        this.scoreElement.textContent = this.score;
                     }
-                    this.scoreElement.textContent = this.score;
                     this.showFeedback(`¡Correcto! Era ${this.currentNumber}. ¡Bien hecho! 🎉`, 'correct');
                     this.speakText('¡Correcto! ¡Muy bien!');
                     setTimeout(() => this.generateNewNumber(), 3000);
@@ -477,9 +484,6 @@
                     this.showFeedback(`No entendí "${spokenText}". ¡Inténtalo de nuevo! 🎤`, 'incorrect');
                     this.speakText('No te entendí, inténtalo otra vez');
                 }
-                
-                // Reset la bandera después de procesar
-                this.lastActionWasSpeak = false;
             }
 
             numberToSpanish(num) {
