@@ -191,7 +191,7 @@
             body {
                 padding: 5px;
             }
-            
+
             .game-container {
                 padding: 10px;
                 min-height: calc(100vh - 10px);
@@ -202,7 +202,7 @@
                 font-size: 1.8em;
                 margin: 0 0 8px 0;
             }
-            
+
             .instructions {
                 font-size: 0.75em;
                 padding: 8px;
@@ -215,21 +215,44 @@
                 margin: 10px 0;
             }
 
+            .buttons {
+                margin: 8px 0 0 0;
+                gap: 6px;
+            }
+
             .button-row {
-                gap: 8px;
+                gap: 6px;
             }
 
             button {
-                min-width: 90px;
-                padding: 10px 15px;
-                font-size: 0.9em;
+                min-width: 80px;
+                padding: 8px 12px;
+                font-size: 0.85em;
             }
-            
+
             .feedback {
-                font-size: 0.9em;
-                padding: 8px;
-                margin: 8px 0;
-                min-height: 35px;
+                font-size: 0.75em;
+                padding: 4px;
+                margin: 6px 0 2px 0;
+                min-height: 20px;
+            }
+
+            .voice-status {
+                margin: 3px 0;
+                padding: 4px;
+                font-size: 0.75em;
+            }
+
+            .score {
+                padding: 4px 10px;
+                margin-bottom: 5px;
+                font-size: 0.85em;
+            }
+
+            #resetBtn {
+                padding: 6px 12px !important;
+                font-size: 0.7em !important;
+                min-width: 70px;
             }
         }
 
@@ -255,16 +278,16 @@
                 <div style="width: 40px;"></div>
             </div>
         </div>
-        
+
         <div class="instructions">
             📢 <strong>Instrucciones:</strong> Di el número que ves en voz alta. ¡Presiona "¡Responder!" para empezar!
         </div>
 
-        <div class="main-content" style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+        <div class="main-content" style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0;">
             <div class="score" style="margin-bottom: 10px;">
                 Puntuación: <span id="score">0</span>
             </div>
-            
+
             <div class="number-display" id="numberDisplay">
                 42
             </div>
@@ -278,18 +301,17 @@
                     <button id="speakBtn" class="btn-secondary">🔊 Ayuda</button>
                     <button id="nextBtn" class="btn-accent">➡️ Siguiente</button>
                 </div>
+                <div class="button-row" style="margin-top: 8px;">
+                    <button id="resetBtn" style="background: #f56565; color: white; padding: 6px 12px; font-size: 0.75em; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.3s ease;" onmouseover="this.style.background='#e53e3e'" onmouseout="this.style.background='#f56565'">
+                        🔄 Reset
+                    </button>
+                </div>
+                <div id="voiceStatus" class="voice-status" style="display: none;"></div>
+                <div id="feedback" class="feedback neutral">¡Presiona "¡Responder!" para comenzar!</div>
             </div>
         </div>
 
-        <div class="bottom-section">
-            <div id="voiceStatus" class="voice-status" style="display: none;"></div>
-            <div id="feedback" class="feedback neutral">¡Presiona "¡Responder!" para comenzar!</div>
-            
-            <div style="text-align: center; margin-top: 10px;">
-                <button id="resetBtn" style="background: #f56565; color: white; padding: 6px 12px; font-size: 0.75em; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.3s ease;" onmouseover="this.style.background='#e53e3e'" onmouseout="this.style.background='#f56565'">
-                    🔄 Reset
-                </button>
-            </div>
+        <div class="bottom-section" style="flex-shrink: 0;">
         </div>
     </div>
 
@@ -300,9 +322,9 @@
                 this.score = 0;
                 this.recognition = null;
                 this.synthesis = null;
-                this.lastActionWasSpeak = false;
+                this.speakWasUsed = false;
                 this.processingAnswer = false;
-                
+
                 this.initElements();
                 this.initSpeechRecognition();
                 this.initSpeechSynthesis();
@@ -328,8 +350,8 @@
                     this.recognition = new SpeechRecognition();
                     this.recognition.lang = 'es-AR';
                     this.recognition.continuous = false;
-                    this.recognition.interimResults = true;
-                    this.recognition.maxAlternatives = 3;
+                    this.recognition.interimResults = false;
+                    this.recognition.maxAlternatives = 1;
 
                     this.recognition.onstart = () => {
                         console.log('Reconocimiento iniciado');
@@ -353,7 +375,7 @@
 
                         if (interimTranscript) {
                             this.showVoiceStatus(`Escuchando: "${interimTranscript}"`, 'listening');
-                            
+
                             const number = this.spanishTextToNumber(interimTranscript.toLowerCase().trim());
                             if (number !== null && number >= 0 && number <= 100) {
                                 this.recognition.stop();
@@ -405,12 +427,11 @@
                 this.numberDisplay.textContent = this.currentNumber;
                 this.showFeedback('¡Nuevo número! Di el número que ves.', 'neutral');
                 this.processingAnswer = false;
-                this.lastActionWasSpeak = false;
+                this.speakWasUsed = false;
             }
 
             startListening() {
                 if (this.recognition) {
-                    this.lastActionWasSpeak = false;
                     try {
                         this.recognition.start();
                     } catch (error) {
@@ -421,7 +442,7 @@
             }
 
             speakNumber() {
-                this.lastActionWasSpeak = true;
+                this.speakWasUsed = true;
                 this.speakText(this.numberToSpanish(this.currentNumber));
             }
 
@@ -434,16 +455,13 @@
                 const voices = this.synthesis.getVoices();
                 console.log('Voces disponibles:', voices.map(v => `${v.name} (${v.lang})`));
 
-                // Buscar voz femenina argentina/latina
-                const femaleVoice = voices.find(voice => 
-                    voice.lang === 'es-AR' && (voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('mujer'))
-                ) || voices.find(voice => 
-                    voice.lang.startsWith('es') && (voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('mujer'))
-                ) || voices.find(voice => voice.lang === 'es-AR'
-                ) || voices.find(voice => voice.lang.startsWith('es'));
-
+                const femaleVoice = (
+                  voices.find((v) => v.name.toLowerCase().includes('paulina')) ||
+                  voices.find((v) => v.name.includes('es-AR') || v.lang === 'es-AR') ||
+                  voices.find((v) => v.name.includes('es-MX') || v.lang === 'es-MX')
+                );
                 const utterance = new SpeechSynthesisUtterance(message);
-                
+
                 if (femaleVoice) {
                     utterance.voice = femaleVoice;
                     console.log('🎙️ Usando voz femenina:', femaleVoice.name);
@@ -453,7 +471,7 @@
                 }
 
                 utterance.rate = 0.8;
-                utterance.pitch = 1.3;  // Tono más agudo para sonar más femenino
+                utterance.pitch = 1.1;  // Tono más agudo para sonar más femenino
                 utterance.volume = 1.0;
 
                 this.synthesis.speak(utterance);
@@ -463,13 +481,13 @@
                 if (this.processingAnswer) {
                     return;
                 }
-                
+
                 const spokenNumber = this.spanishTextToNumber(spokenText);
-                
+
                 if (spokenNumber === this.currentNumber) {
                     this.processingAnswer = true;
                     // Solo dar puntos si no fue después de usar el botón de hablar
-                    if (!this.lastActionWasSpeak) {
+                    if (!this.speakWasUsed) {
                         this.score++;
                         this.saveScore();
                         this.scoreElement.textContent = this.score;
@@ -493,7 +511,7 @@
 
                 if (num === 0) return 'cero';
                 if (num === 100) return 'cien';
-                
+
                 if (num < 10) return ones[num];
                 if (num < 20) return teens[num - 10];
                 if (num < 30) return num === 20 ? 'veinte' : 'veinti' + ones[num - 20];
@@ -502,7 +520,7 @@
                     const one = num % 10;
                     return tens[ten] + (one > 0 ? ' y ' + ones[one] : '');
                 }
-                
+
                 return num.toString();
             }
 
@@ -605,14 +623,14 @@
                     if (savedData) {
                         gamesData = JSON.parse(savedData);
                     }
-                    
+
                     if (!gamesData.numbers) {
                         gamesData.numbers = {};
                     }
-                    
+
                     gamesData.numbers.score = this.score;
                     gamesData.numbers.lastPlayed = new Date().toISOString();
-                    
+
                     localStorage.setItem('kidsGamesData', JSON.stringify(gamesData));
                 } catch (error) {
                     console.error('Error saving score:', error);
