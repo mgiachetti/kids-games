@@ -17,70 +17,77 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
-            padding: 20px;
+            align-items: flex-start;
+            padding: 10px;
+            overflow-x: hidden;
         }
 
         .game-container {
             background: white;
             border-radius: 20px;
-            padding: 30px;
+            padding: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             text-align: center;
             max-width: 500px;
             width: 100%;
+            min-height: calc(100vh - 20px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         h1 {
             color: #4a5568;
-            margin-bottom: 20px;
-            font-size: 2.5em;
+            margin: 5px 0 10px 0;
+            font-size: 2em;
         }
 
         .score {
             background: #48bb78;
             color: white;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 50px;
-            margin-bottom: 30px;
-            font-size: 1.2em;
+            margin-bottom: 10px;
+            font-size: 1em;
             display: inline-block;
         }
 
         .number-display {
-            font-size: 6em;
+            font-size: 4.5em;
             font-weight: bold;
             color: #2d3748;
-            margin: 20px 0;
+            margin: 15px 0;
             background: #f7fafc;
             border-radius: 15px;
-            padding: 20px;
+            padding: 15px;
             border: 3px solid #e2e8f0;
+            flex-shrink: 0;
         }
 
         .buttons {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            margin: 30px 0;
+            gap: 10px;
+            margin: 15px 0;
+            flex-shrink: 0;
         }
 
         .button-row {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             justify-content: center;
             flex-wrap: wrap;
         }
 
         button {
-            padding: 15px 25px;
-            font-size: 1.1em;
+            padding: 12px 20px;
+            font-size: 1em;
             border: none;
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: bold;
-            min-width: 120px;
+            min-width: 100px;
         }
 
         .btn-primary {
@@ -120,15 +127,16 @@
         }
 
         .feedback {
-            font-size: 1.3em;
+            font-size: 1em;
             font-weight: bold;
-            margin: 20px 0;
-            padding: 15px;
+            margin: 10px 0;
+            padding: 10px;
             border-radius: 10px;
-            min-height: 50px;
+            min-height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
 
         .feedback.correct {
@@ -147,10 +155,11 @@
         }
 
         .voice-status {
-            margin: 15px 0;
-            padding: 10px;
+            margin: 8px 0;
+            padding: 8px;
             border-radius: 8px;
             font-weight: bold;
+            font-size: 0.9em;
         }
 
         .voice-status.listening {
@@ -163,69 +172,125 @@
             color: #97266d;
         }
 
+        @keyframes pulse-glow {
+            0% {
+                box-shadow: 0 4px 15px rgba(66, 153, 225, 0.3);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 6px 25px rgba(66, 153, 225, 0.6);
+                transform: scale(1.02);
+            }
+            100% {
+                box-shadow: 0 4px 15px rgba(66, 153, 225, 0.3);
+                transform: scale(1);
+            }
+        }
+
         @media (max-width: 600px) {
+            body {
+                padding: 5px;
+            }
+            
             .game-container {
-                padding: 20px;
+                padding: 10px;
+                min-height: calc(100vh - 10px);
+                border-radius: 15px;
             }
 
             h1 {
-                font-size: 2em;
+                font-size: 1.8em;
+                margin: 0 0 8px 0;
+            }
+            
+            .instructions {
+                font-size: 0.75em;
+                padding: 8px;
+                margin-bottom: 10px;
             }
 
             .number-display {
-                font-size: 4em;
-                padding: 15px;
+                font-size: 3.5em;
+                padding: 10px;
+                margin: 10px 0;
             }
 
             .button-row {
-                flex-direction: column;
-                align-items: center;
+                gap: 8px;
             }
 
             button {
-                min-width: 200px;
+                min-width: 90px;
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+            
+            .feedback {
+                font-size: 0.9em;
+                padding: 8px;
+                margin: 8px 0;
+                min-height: 35px;
             }
         }
 
         .instructions {
             background: #e6fffa;
             color: #234e52;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 0.9em;
-            border-left: 4px solid #38b2ac;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.8em;
+            border-left: 3px solid #38b2ac;
         }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <h1>🎯 Juego de Números</h1>
+        <div class="header-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <a href="index.html" style="background: #e2e8f0; color: #4a5568; padding: 6px 10px; border-radius: 6px; text-decoration: none; font-weight: bold; transition: all 0.3s ease; font-size: 0.8em;" onmouseover="this.style.background='#cbd5e0'" onmouseout="this.style.background='#e2e8f0'">
+                    ⬅️
+                </a>
+                <h1>🎯 Juego de Números</h1>
+                <div style="width: 40px;"></div>
+            </div>
+        </div>
         
         <div class="instructions">
-            📢 <strong>Instrucciones:</strong> Di el número que ves en voz alta. ¡Presiona el micrófono para empezar!
+            📢 <strong>Instrucciones:</strong> Di el número que ves en voz alta. ¡Presiona "¡Responder!" para empezar!
         </div>
 
-        <div class="score">
-            Puntuación: <span id="score">0</span>
-        </div>
-
-        <div class="number-display" id="numberDisplay">
-            42
-        </div>
-
-        <div class="buttons">
-            <div class="button-row">
-                <button id="listenBtn" class="btn-primary">🎤 Escuchar</button>
-                <button id="speakBtn" class="btn-secondary">🔊 Decir Número</button>
+        <div class="main-content" style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+            <div class="score" style="margin-bottom: 10px;">
+                Puntuación: <span id="score">0</span>
             </div>
-            <div class="button-row">
-                <button id="nextBtn" class="btn-accent">➡️ Siguiente Número</button>
+            
+            <div class="number-display" id="numberDisplay">
+                42
+            </div>
+
+            <div class="buttons">
+                <div class="button-row">
+                    <button id="listenBtn" class="btn-primary" style="background: linear-gradient(135deg, #4299e1, #667eea); font-size: 1.1em; padding: 15px 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(66, 153, 225, 0.3); animation: pulse-glow 2s infinite;">🎤 ¡Responder!
+                    </button>
+                </div>
+                <div class="button-row">
+                    <button id="speakBtn" class="btn-secondary">🔊 Ayuda</button>
+                    <button id="nextBtn" class="btn-accent">➡️ Siguiente</button>
+                </div>
             </div>
         </div>
 
-        <div id="voiceStatus" class="voice-status" style="display: none;"></div>
-        <div id="feedback" class="feedback neutral">¡Presiona el micrófono para comenzar!</div>
+        <div class="bottom-section">
+            <div id="voiceStatus" class="voice-status" style="display: none;"></div>
+            <div id="feedback" class="feedback neutral">¡Presiona "¡Responder!" para comenzar!</div>
+            
+            <div style="text-align: center; margin-top: 10px;">
+                <button id="resetBtn" style="background: #f56565; color: white; padding: 6px 12px; font-size: 0.75em; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.3s ease;" onmouseover="this.style.background='#e53e3e'" onmouseout="this.style.background='#f56565'">
+                    🔄 Reset
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -235,10 +300,12 @@
                 this.score = 0;
                 this.recognition = null;
                 this.synthesis = null;
+                this.lastActionWasSpeak = false;
                 
                 this.initElements();
                 this.initSpeechRecognition();
                 this.initSpeechSynthesis();
+                this.loadScore();
                 this.generateNewNumber();
                 this.bindEvents();
             }
@@ -249,6 +316,7 @@
                 this.listenBtn = document.getElementById('listenBtn');
                 this.speakBtn = document.getElementById('speakBtn');
                 this.nextBtn = document.getElementById('nextBtn');
+                this.resetBtn = document.getElementById('resetBtn');
                 this.voiceStatus = document.getElementById('voiceStatus');
                 this.feedback = document.getElementById('feedback');
             }
@@ -328,16 +396,19 @@
                 this.listenBtn.addEventListener('click', () => this.startListening());
                 this.speakBtn.addEventListener('click', () => this.speakNumber());
                 this.nextBtn.addEventListener('click', () => this.generateNewNumber());
+                this.resetBtn.addEventListener('click', () => this.resetScore());
             }
 
             generateNewNumber() {
                 this.currentNumber = Math.floor(Math.random() * 101);
                 this.numberDisplay.textContent = this.currentNumber;
                 this.showFeedback('¡Nuevo número! Di el número que ves.', 'neutral');
+                this.lastActionWasSpeak = false;
             }
 
             startListening() {
                 if (this.recognition) {
+                    this.lastActionWasSpeak = false;
                     try {
                         this.recognition.start();
                     } catch (error) {
@@ -348,6 +419,7 @@
             }
 
             speakNumber() {
+                this.lastActionWasSpeak = true;
                 this.speakText(this.numberToSpanish(this.currentNumber));
             }
 
@@ -389,7 +461,11 @@
                 const spokenNumber = this.spanishTextToNumber(spokenText);
                 
                 if (spokenNumber === this.currentNumber) {
-                    this.score++;
+                    // Solo dar puntos si no fue después de usar el botón de hablar
+                    if (!this.lastActionWasSpeak) {
+                        this.score++;
+                        this.saveScore();
+                    }
                     this.scoreElement.textContent = this.score;
                     this.showFeedback(`¡Correcto! Era ${this.currentNumber}. ¡Bien hecho! 🎉`, 'correct');
                     this.speakText('¡Correcto! ¡Muy bien!');
@@ -401,6 +477,9 @@
                     this.showFeedback(`No entendí "${spokenText}". ¡Inténtalo de nuevo! 🎤`, 'incorrect');
                     this.speakText('No te entendí, inténtalo otra vez');
                 }
+                
+                // Reset la bandera después de procesar
+                this.lastActionWasSpeak = false;
             }
 
             numberToSpanish(num) {
@@ -497,7 +576,53 @@
 
             resetListenButton() {
                 this.listenBtn.disabled = false;
-                this.listenBtn.textContent = '🎤 Escuchar';
+                this.listenBtn.textContent = '🎤 ¡Responder!';
+            }
+
+            loadScore() {
+                try {
+                    const savedData = localStorage.getItem('kidsGamesData');
+                    if (savedData) {
+                        const gamesData = JSON.parse(savedData);
+                        if (gamesData.numbers && typeof gamesData.numbers.score === 'number') {
+                            this.score = gamesData.numbers.score;
+                            this.scoreElement.textContent = this.score;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading score:', error);
+                }
+            }
+
+            saveScore() {
+                try {
+                    let gamesData = {};
+                    const savedData = localStorage.getItem('kidsGamesData');
+                    if (savedData) {
+                        gamesData = JSON.parse(savedData);
+                    }
+                    
+                    if (!gamesData.numbers) {
+                        gamesData.numbers = {};
+                    }
+                    
+                    gamesData.numbers.score = this.score;
+                    gamesData.numbers.lastPlayed = new Date().toISOString();
+                    
+                    localStorage.setItem('kidsGamesData', JSON.stringify(gamesData));
+                } catch (error) {
+                    console.error('Error saving score:', error);
+                }
+            }
+
+            resetScore() {
+                if (confirm('¿Estás seguro de que quieres resetear tu puntuación?')) {
+                    this.score = 0;
+                    this.scoreElement.textContent = this.score;
+                    this.saveScore();
+                    this.showFeedback('¡Puntuación reseteada! ¡A jugar desde cero! 🎯', 'neutral');
+                    this.speakText('Puntuación reseteada. ¡A jugar!');
+                }
             }
         }
 

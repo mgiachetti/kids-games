@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juegos para Niños - Diversión y Aprendizaje</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            font-size: 1.2em;
+            margin-bottom: 40px;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .game-card {
+            background: linear-gradient(135deg, #4299e1, #667eea);
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            text-decoration: none;
+            display: block;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #3182ce, #5a67d8);
+        }
+
+        .game-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .game-title {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .game-description {
+            font-size: 1.1em;
+            line-height: 1.5;
+            opacity: 0.9;
+            color: white;
+        }
+
+        .coming-soon {
+            background: linear-gradient(135deg, #9ca3af, #6b7280);
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .coming-soon:hover {
+            transform: none;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #9ca3af, #6b7280);
+        }
+
+        .features {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+
+        .features h2 {
+            color: #4a5568;
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+
+        .feature-text {
+            color: #4a5568;
+            font-weight: bold;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #718096;
+            font-size: 1em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2.5em;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .game-card {
+                padding: 20px;
+            }
+
+            .game-icon {
+                font-size: 3em;
+            }
+
+            .game-title {
+                font-size: 1.5em;
+            }
+
+            .feature-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Juegos para Niños</h1>
+        <p class="subtitle">Diversión educativa y entretenimiento seguro para los más pequeños</p>
+        
+        <div class="games-grid">
+            <a href="numeros.html" class="game-card pulse-animation">
+                <span class="game-icon">🎯</span>
+                <div class="game-title">Juego de Números</div>
+                <div class="game-description">
+                    ¡Aprende números del 0 al 100 con reconocimiento de voz! 
+                    Di el número que ves y mejora tu pronunciación mientras te diviertes.
+                </div>
+            </a>
+            
+            <div class="game-card coming-soon">
+                <span class="game-icon">🔤</span>
+                <div class="game-title">Letras y Palabras</div>
+                <div class="game-description">
+                    Próximamente: Aprende el abecedario y forma palabras simples.
+                </div>
+            </div>
+            
+            <div class="game-card coming-soon">
+                <span class="game-icon">🎨</span>
+                <div class="game-title">Colores y Formas</div>
+                <div class="game-description">
+                    Próximamente: Identifica colores y formas geométricas básicas.
+                </div>
+            </div>
+            
+            <div class="game-card coming-soon">
+                <span class="game-icon">🎵</span>
+                <div class="game-title">Música y Sonidos</div>
+                <div class="game-description">
+                    Próximamente: Reconoce instrumentos y aprende ritmos básicos.
+                </div>
+            </div>
+        </div>
+
+        <div class="features">
+            <h2>🌟 Características</h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <span class="feature-icon">🎤</span>
+                    <span class="feature-text">Reconocimiento de voz interactivo</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🔊</span>
+                    <span class="feature-text">Audio claro y amigable</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">📱</span>
+                    <span class="feature-text">Compatible con móviles y tablets</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🎯</span>
+                    <span class="feature-text">Diseñado especialmente para niños</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🏆</span>
+                    <span class="feature-text">Sistema de puntuación motivador</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🌈</span>
+                    <span class="feature-text">Interfaz colorida y atractiva</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>💝 Hecho con amor para el aprendizaje y la diversión de los niños</p>
+            <p>🚀 Más juegos educativos en desarrollo</p>
+        </div>
+    </div>
+</body>
+</html>
