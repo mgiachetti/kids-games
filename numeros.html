@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Números para Niños</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        .score {
+            background: #48bb78;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+            display: inline-block;
+        }
+
+        .number-display {
+            font-size: 6em;
+            font-weight: bold;
+            color: #2d3748;
+            margin: 20px 0;
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 20px;
+            border: 3px solid #e2e8f0;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 15px 25px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3182ce;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+
+        .btn-accent {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-accent:hover {
+            background: #dd6b20;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .feedback {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feedback.correct {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .feedback.incorrect {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .feedback.neutral {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .voice-status {
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .voice-status.listening {
+            background: #bee3f8;
+            color: #2b6cb0;
+        }
+
+        .voice-status.processing {
+            background: #fbb6ce;
+            color: #97266d;
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .number-display {
+                font-size: 4em;
+                padding: 15px;
+            }
+
+            .button-row {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            button {
+                min-width: 200px;
+            }
+        }
+
+        .instructions {
+            background: #e6fffa;
+            color: #234e52;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            border-left: 4px solid #38b2ac;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎯 Juego de Números</h1>
+        
+        <div class="instructions">
+            📢 <strong>Instrucciones:</strong> Di el número que ves en voz alta. ¡Presiona el micrófono para empezar!
+        </div>
+
+        <div class="score">
+            Puntuación: <span id="score">0</span>
+        </div>
+
+        <div class="number-display" id="numberDisplay">
+            42
+        </div>
+
+        <div class="buttons">
+            <div class="button-row">
+                <button id="listenBtn" class="btn-primary">🎤 Escuchar</button>
+                <button id="speakBtn" class="btn-secondary">🔊 Decir Número</button>
+            </div>
+            <div class="button-row">
+                <button id="nextBtn" class="btn-accent">➡️ Siguiente Número</button>
+            </div>
+        </div>
+
+        <div id="voiceStatus" class="voice-status" style="display: none;"></div>
+        <div id="feedback" class="feedback neutral">¡Presiona el micrófono para comenzar!</div>
+    </div>
+
+    <script>
+        class NumberGame {
+            constructor() {
+                this.currentNumber = 0;
+                this.score = 0;
+                this.recognition = null;
+                this.synthesis = null;
+                
+                this.initElements();
+                this.initSpeechRecognition();
+                this.initSpeechSynthesis();
+                this.generateNewNumber();
+                this.bindEvents();
+            }
+
+            initElements() {
+                this.scoreElement = document.getElementById('score');
+                this.numberDisplay = document.getElementById('numberDisplay');
+                this.listenBtn = document.getElementById('listenBtn');
+                this.speakBtn = document.getElementById('speakBtn');
+                this.nextBtn = document.getElementById('nextBtn');
+                this.voiceStatus = document.getElementById('voiceStatus');
+                this.feedback = document.getElementById('feedback');
+            }
+
+            initSpeechRecognition() {
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    this.recognition = new SpeechRecognition();
+                    this.recognition.lang = 'es-AR';
+                    this.recognition.continuous = false;
+                    this.recognition.interimResults = true;
+                    this.recognition.maxAlternatives = 3;
+
+                    this.recognition.onstart = () => {
+                        console.log('Reconocimiento iniciado');
+                        this.showVoiceStatus('🎤 Escuchando...', 'listening');
+                        this.listenBtn.disabled = true;
+                        this.listenBtn.textContent = '🎤 Escuchando...';
+                    };
+
+                    this.recognition.onresult = (event) => {
+                        let finalTranscript = '';
+                        let interimTranscript = '';
+
+                        for (let i = event.resultIndex; i < event.results.length; i++) {
+                            const transcript = event.results[i][0].transcript;
+                            if (event.results[i].isFinal) {
+                                finalTranscript += transcript;
+                            } else {
+                                interimTranscript += transcript;
+                            }
+                        }
+
+                        if (interimTranscript) {
+                            this.showVoiceStatus(`Escuchando: "${interimTranscript}"`, 'listening');
+                            
+                            const number = this.spanishTextToNumber(interimTranscript.toLowerCase().trim());
+                            if (number !== null && number >= 0 && number <= 100) {
+                                this.recognition.stop();
+                                this.processVoiceInput(interimTranscript.toLowerCase().trim());
+                                return;
+                            }
+                        }
+
+                        if (finalTranscript) {
+                            this.recognition.stop();
+                            this.processVoiceInput(finalTranscript.toLowerCase().trim());
+                        }
+                    };
+
+                    this.recognition.onerror = (event) => {
+                        console.error('Error de reconocimiento:', event.error);
+                        this.showFeedback('Error al escuchar. Intenta de nuevo.', 'incorrect');
+                        this.resetListenButton();
+                        this.hideVoiceStatus();
+                    };
+
+                    this.recognition.onend = () => {
+                        this.resetListenButton();
+                        setTimeout(() => this.hideVoiceStatus(), 1000);
+                    };
+                } else {
+                    this.showFeedback('Tu navegador no soporta reconocimiento de voz', 'incorrect');
+                    this.listenBtn.disabled = true;
+                }
+            }
+
+            initSpeechSynthesis() {
+                if ('speechSynthesis' in window) {
+                    this.synthesis = window.speechSynthesis;
+                } else {
+                    this.speakBtn.disabled = true;
+                }
+            }
+
+            bindEvents() {
+                this.listenBtn.addEventListener('click', () => this.startListening());
+                this.speakBtn.addEventListener('click', () => this.speakNumber());
+                this.nextBtn.addEventListener('click', () => this.generateNewNumber());
+            }
+
+            generateNewNumber() {
+                this.currentNumber = Math.floor(Math.random() * 101);
+                this.numberDisplay.textContent = this.currentNumber;
+                this.showFeedback('¡Nuevo número! Di el número que ves.', 'neutral');
+            }
+
+            startListening() {
+                if (this.recognition) {
+                    try {
+                        this.recognition.start();
+                    } catch (error) {
+                        console.log('Error al iniciar:', error);
+                        this.showFeedback('Error al acceder al micrófono.', 'incorrect');
+                    }
+                }
+            }
+
+            speakNumber() {
+                this.speakText(this.numberToSpanish(this.currentNumber));
+            }
+
+            speakText(message) {
+                if (!this.synthesis) return;
+
+                this.synthesis.cancel();
+
+                // Obtener voces disponibles
+                const voices = this.synthesis.getVoices();
+                console.log('Voces disponibles:', voices.map(v => `${v.name} (${v.lang})`));
+
+                // Buscar voz femenina argentina/latina
+                const femaleVoice = voices.find(voice => 
+                    voice.lang === 'es-AR' && (voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('mujer'))
+                ) || voices.find(voice => 
+                    voice.lang.startsWith('es') && (voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('mujer'))
+                ) || voices.find(voice => voice.lang === 'es-AR'
+                ) || voices.find(voice => voice.lang.startsWith('es'));
+
+                const utterance = new SpeechSynthesisUtterance(message);
+                
+                if (femaleVoice) {
+                    utterance.voice = femaleVoice;
+                    console.log('🎙️ Usando voz femenina:', femaleVoice.name);
+                } else {
+                    utterance.lang = 'es-AR';
+                    console.log('🎙️ Usando voz por defecto');
+                }
+
+                utterance.rate = 0.8;
+                utterance.pitch = 1.3;  // Tono más agudo para sonar más femenino
+                utterance.volume = 1.0;
+
+                this.synthesis.speak(utterance);
+            }
+
+            processVoiceInput(spokenText) {
+                const spokenNumber = this.spanishTextToNumber(spokenText);
+                
+                if (spokenNumber === this.currentNumber) {
+                    this.score++;
+                    this.scoreElement.textContent = this.score;
+                    this.showFeedback(`¡Correcto! Era ${this.currentNumber}. ¡Bien hecho! 🎉`, 'correct');
+                    this.speakText('¡Correcto! ¡Muy bien!');
+                    setTimeout(() => this.generateNewNumber(), 3000);
+                } else if (spokenNumber !== null) {
+                    this.showFeedback(`No es correcto. Dijiste "${spokenNumber}" pero era "${this.currentNumber}". ¡Inténtalo de nuevo! 🤔`, 'incorrect');
+                    this.speakText('Inténtalo otra vez');
+                } else {
+                    this.showFeedback(`No entendí "${spokenText}". ¡Inténtalo de nuevo! 🎤`, 'incorrect');
+                    this.speakText('No te entendí, inténtalo otra vez');
+                }
+            }
+
+            numberToSpanish(num) {
+                const ones = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
+                const teens = ['diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve'];
+                const tens = ['', '', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
+
+                if (num === 0) return 'cero';
+                if (num === 100) return 'cien';
+                
+                if (num < 10) return ones[num];
+                if (num < 20) return teens[num - 10];
+                if (num < 30) return num === 20 ? 'veinte' : 'veinti' + ones[num - 20];
+                if (num < 100) {
+                    const ten = Math.floor(num / 10);
+                    const one = num % 10;
+                    return tens[ten] + (one > 0 ? ' y ' + ones[one] : '');
+                }
+                
+                return num.toString();
+            }
+
+            spanishTextToNumber(text) {
+                const numberMap = {
+                    'cero': 0, 'uno': 1, 'dos': 2, 'tres': 3, 'cuatro': 4, 'cinco': 5,
+                    'seis': 6, 'siete': 7, 'ocho': 8, 'nueve': 9, 'diez': 10,
+                    'once': 11, 'doce': 12, 'trece': 13, 'catorce': 14, 'quince': 15,
+                    'dieciséis': 16, 'diecisiete': 17, 'dieciocho': 18, 'diecinueve': 19,
+                    'veinte': 20, 'veintiuno': 21, 'veintidós': 22, 'veintitrés': 23,
+                    'veinticuatro': 24, 'veinticinco': 25, 'veintiséis': 26, 'veintisiete': 27,
+                    'veintiocho': 28, 'veintinueve': 29, 'treinta': 30, 'cuarenta': 40,
+                    'cincuenta': 50, 'sesenta': 60, 'setenta': 70, 'ochenta': 80,
+                    'noventa': 90, 'cien': 100
+                };
+
+                // Variaciones comunes
+                const variations = {
+                    'veinti uno': 21, 'veinti dos': 22, 'veinti tres': 23, 'veinti cuatro': 24,
+                    'veinti cinco': 25, 'veinti seis': 26, 'veinti siete': 27, 'veinti ocho': 28, 'veinti nueve': 29,
+                    'veinte y uno': 21, 'veinte y dos': 22, 'veinte y tres': 23, 'veinte y cuatro': 24,
+                    'veinte y cinco': 25, 'veinte y seis': 26, 'veinte y siete': 27, 'veinte y ocho': 28, 'veinte y nueve': 29,
+                    'dieciseis': 16, 'veintidos': 22, 'veintitres': 23, 'veintiseis': 26
+                };
+
+                text = text.replace(/[.,!?¿¡]/g, '').trim().toLowerCase();
+
+                // Buscar directamente
+                if (variations[text] !== undefined) return variations[text];
+                if (numberMap[text] !== undefined) return numberMap[text];
+
+                // Buscar dígitos
+                const digitMatch = text.match(/(\d+)/);
+                if (digitMatch) {
+                    const num = parseInt(digitMatch[1]);
+                    if (num >= 0 && num <= 100) return num;
+                }
+
+                // Buscar con "y"
+                if (text.includes(' y ')) {
+                    const parts = text.split(' y ').map(p => p.trim());
+                    if (parts.length === 2) {
+                        const tens = numberMap[parts[0]];
+                        const ones = numberMap[parts[1]];
+                        if (tens && ones && tens >= 20 && tens <= 90 && ones >= 1 && ones <= 9) {
+                            return tens + ones;
+                        }
+                    }
+                }
+
+                // Buscar palabras individuales
+                const words = text.split(' ');
+                for (const word of words) {
+                    if (numberMap[word] !== undefined) return numberMap[word];
+                    if (variations[word] !== undefined) return variations[word];
+                }
+
+                return null;
+            }
+
+            showVoiceStatus(message, type) {
+                this.voiceStatus.textContent = message;
+                this.voiceStatus.className = `voice-status ${type}`;
+                this.voiceStatus.style.display = 'block';
+            }
+
+            hideVoiceStatus() {
+                this.voiceStatus.style.display = 'none';
+            }
+
+            showFeedback(message, type) {
+                this.feedback.textContent = message;
+                this.feedback.className = `feedback ${type}`;
+            }
+
+            resetListenButton() {
+                this.listenBtn.disabled = false;
+                this.listenBtn.textContent = '🎤 Escuchar';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new NumberGame();
+        });
+    </script>
+</body>
+</html>
