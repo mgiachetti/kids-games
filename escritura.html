@@ -442,15 +442,13 @@
                 // Initialize handwriting.js canvas exactly like the example
                 this.handwritingCanvas = new handwriting.Canvas(this.canvas, 3);
 
-                // Set canvas dimensions like in the example
-                const container = this.canvas.parentElement;
-                // const containerWidth = container.clientWidth;
-                // const canvasSize = containerWidth < 400 ? containerWidth : 400;
+                // Set up responsive canvas with proper pixel density
+                this.setupResponsiveCanvas();
 
-                this.handwritingCanvas.cxt.canvas.width = 570;
-                this.handwritingCanvas.cxt.canvas.height = 300;
-
-                console.log(container.width, container.height);
+                // Add resize listener
+                window.addEventListener('resize', () => {
+                    this.setupResponsiveCanvas();
+                });
 
                 // Set callback for handwriting recognition results
                 this.handwritingCanvas.setCallBack((data, err) => {
@@ -471,6 +469,49 @@
                 });
 
                 console.log('✅ Handwriting.js canvas initialized successfully');
+            }
+
+            setupResponsiveCanvas() {
+                if (!this.handwritingCanvas) return;
+
+                const container = this.canvas.parentElement;
+                const containerRect = container.getBoundingClientRect();
+
+                // Get device pixel ratio (2 on Mac Retina displays)
+                const devicePixelRatio = window.devicePixelRatio || 1;
+
+                // Calculate display size (CSS pixels)
+                const displayWidth = containerRect.width - 6; // Account for border
+                const displayHeight = containerRect.height - 6; // Account for border
+
+                // Calculate actual canvas size (device pixels)
+                const canvasWidth = displayWidth * devicePixelRatio;
+                const canvasHeight = displayHeight * devicePixelRatio;
+
+                // Set the actual canvas size in memory (scaled up for high DPI)
+                this.canvas.width = canvasWidth;
+                this.canvas.height = canvasHeight;
+
+                // Set the display size in CSS pixels
+                this.canvas.style.width = displayWidth + 'px';
+                this.canvas.style.height = displayHeight + 'px';
+
+                // Scale the drawing context to match device pixel ratio
+                const ctx = this.canvas.getContext('2d');
+                ctx.scale(devicePixelRatio, devicePixelRatio);
+
+                // Update handwriting.js canvas dimensions
+                this.handwritingCanvas.cxt.canvas.width = canvasWidth;
+                this.handwritingCanvas.cxt.canvas.height = canvasHeight;
+
+                // Ensure handwriting.js respects the scaling
+                this.handwritingCanvas.cxt.scale(devicePixelRatio, devicePixelRatio);
+
+                console.log('Canvas setup:', {
+                    displaySize: `${displayWidth}x${displayHeight}`,
+                    canvasSize: `${canvasWidth}x${canvasHeight}`,
+                    devicePixelRatio
+                });
             }
 
             initSpeechSynthesis() {
@@ -581,6 +622,10 @@
             clearCanvas() {
                 if (this.handwritingCanvas) {
                     this.handwritingCanvas.erase();
+                    const devicePixelRatio = window.devicePixelRatio || 1;
+                    const width = this.handwritingCanvas.width * devicePixelRatio;
+                    const height = this.handwritingCanvas.height * devicePixelRatio;
+                    this.handwritingCanvas.cxt.clearRect(0, 0, width, height);
                 }
             }
 
