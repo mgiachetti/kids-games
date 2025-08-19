@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Escritura para Niños</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 10px;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            min-height: calc(100vh - 20px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        h1 {
+            color: #4a5568;
+            margin: 5px 0 10px 0;
+            font-size: 2em;
+        }
+
+        .score {
+            background: #48bb78;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            margin-bottom: 10px;
+            font-size: 1em;
+            display: inline-block;
+        }
+
+        .word-display {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2d3748;
+            margin: 15px 0;
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 15px;
+            border: 3px solid #e2e8f0;
+            flex-shrink: 0;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .canvas-container {
+            margin: 20px 0;
+            background: white;
+            border: 3px solid #4299e1;
+            border-radius: 15px;
+            position: relative;
+            flex: 1;
+            min-height: 200px;
+            max-height: 300px;
+        }
+
+        #drawingCanvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
+            flex-shrink: 0;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            min-width: 100px;
+        }
+
+        .btn-primary {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3182ce;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+
+        .btn-accent {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-accent:hover {
+            background: #dd6b20;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .feedback {
+            font-size: 1em;
+            font-weight: bold;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 10px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .feedback.correct {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .feedback.incorrect {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .feedback.neutral {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .instructions {
+            background: #e6fffa;
+            color: #234e52;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.8em;
+            border-left: 3px solid #38b2ac;
+        }
+
+        .word-config {
+            background: #fff5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border: 2px solid #feb2b2;
+        }
+
+        .word-config h3 {
+            color: #742a2a;
+            margin-bottom: 10px;
+        }
+
+        .word-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 8px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            min-width: 200px;
+        }
+
+        .word-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .word-tag {
+            background: #bee3f8;
+            color: #2b6cb0;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .word-tag:hover {
+            background: #90cdf4;
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                box-shadow: 0 4px 15px rgba(66, 153, 225, 0.3);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 6px 25px rgba(66, 153, 225, 0.6);
+                transform: scale(1.02);
+            }
+            100% {
+                box-shadow: 0 4px 15px rgba(66, 153, 225, 0.3);
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+
+            .game-container {
+                padding: 10px;
+                min-height: calc(100vh - 10px);
+                border-radius: 15px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+                margin: 0 0 8px 0;
+            }
+
+            .word-display {
+                font-size: 2em;
+                padding: 10px;
+                margin: 10px 0;
+                min-height: 60px;
+            }
+
+            .canvas-container {
+                min-height: 150px;
+                max-height: 200px;
+            }
+
+            .buttons {
+                margin: 8px 0 0 0;
+                gap: 6px;
+            }
+
+            .button-row {
+                gap: 6px;
+            }
+
+            button {
+                min-width: 80px;
+                padding: 8px 12px;
+                font-size: 0.85em;
+            }
+
+            .feedback {
+                font-size: 0.9em;
+                padding: 8px;
+                margin: 6px 0 2px 0;
+                min-height: 30px;
+            }
+
+            .score {
+                padding: 4px 10px;
+                margin-bottom: 5px;
+                font-size: 0.85em;
+            }
+
+            .word-input {
+                flex-direction: column;
+            }
+
+            input[type="text"] {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <a href="index.html" style="background: #e2e8f0; color: #4a5568; padding: 6px 10px; border-radius: 6px; text-decoration: none; font-weight: bold; transition: all 0.3s ease; font-size: 0.8em;" onmouseover="this.style.background='#cbd5e0'" onmouseout="this.style.background='#e2e8f0'">
+                    ⬅️
+                </a>
+                <h1>✍️ Juego de Escritura</h1>
+                <button id="configBtn" style="background: #e2e8f0; color: #4a5568; padding: 6px 10px; border: none; border-radius: 6px; font-weight: bold; transition: all 0.3s ease; font-size: 0.8em; cursor: pointer;" onmouseover="this.style.background='#cbd5e0'" onmouseout="this.style.background='#e2e8f0'">
+                    ⚙️
+                </button>
+            </div>
+        </div>
+
+        <div class="instructions" id="instructions">
+            ✍️ <strong>Instrucciones:</strong> Escucha la palabra y escríbela en el canvas con tu dedo o mouse.
+        </div>
+
+        <div id="wordConfig" class="word-config" style="display: none;">
+            <h3>Configurar Palabras</h3>
+            <div class="word-input">
+                <input type="text" id="newWordInput" placeholder="Escribe una nueva palabra..." maxlength="20">
+                <button id="addWordBtn" class="btn-secondary">Agregar</button>
+            </div>
+            <div class="word-list" id="wordList"></div>
+        </div>
+
+        <div class="main-content" style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0;">
+            <div class="score" style="margin-bottom: 10px;">
+                Puntuación: <span id="score">0</span>
+            </div>
+
+            <div class="word-display" id="wordDisplay">
+                ¡Presiona "Escuchar" para comenzar!
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="drawingCanvas"></canvas>
+            </div>
+
+            <div class="buttons">
+                <div class="button-row">
+                    <button id="speakBtn" class="btn-secondary">🔊 Escuchar</button>
+                    <button id="clearBtn" class="btn-accent">🗑️ Borrar</button>
+                </div>
+                <div class="button-row">
+                    <button id="checkBtn" class="btn-primary" style="background: linear-gradient(135deg, #4299e1, #667eea); font-size: 1.1em; padding: 15px 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(66, 153, 225, 0.3);">✅ Verificar</button>
+                </div>
+                <div class="button-row">
+                    <button id="skipBtn" class="btn-accent">➡️ Siguiente</button>
+                    <button id="resetBtn" class="btn-danger" style="padding: 6px 12px; font-size: 0.75em;">🔄 Reset</button>
+                </div>
+                <div id="feedback" class="feedback neutral">¡Presiona "Escuchar" para empezar!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load handwriting.js library exactly as in the example -->
+    <script src="https://cdn.jsdelivr.net/gh/ChenYuHo/handwriting.js@master/handwriting.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/ChenYuHo/handwriting.js@master/handwriting.canvas.js"></script>
+
+    <script>
+        class WritingGame {
+            constructor() {
+                this.currentWord = '';
+                this.score = 0;
+                this.synthesis = null;
+                this.canvas = null;
+                this.handwritingCanvas = null;
+                this.words = [
+                    'casa', 'perro', 'gato', 'sol', 'luna', 'agua', 'fuego', 'amor', 'mama', 'papa',
+                    'feliz', 'triste', 'grande', 'chico', 'rojo', 'azul', 'verde', 'amarillo'
+                ];
+
+                this.initElements();
+                this.initSpeechSynthesis();
+                this.loadData();
+                this.bindEvents();
+                this.updateWordList();
+
+                // Wait for handwriting.js to load then initialize canvas
+                this.waitForHandwritingJS();
+            }
+
+            waitForHandwritingJS() {
+                if (typeof handwriting !== 'undefined' && typeof handwriting.Canvas !== 'undefined') {
+                    this.initCanvas();
+                } else {
+                    setTimeout(() => this.waitForHandwritingJS(), 100);
+                }
+            }
+
+            initElements() {
+                this.scoreElement = document.getElementById('score');
+                this.wordDisplay = document.getElementById('wordDisplay');
+                this.speakBtn = document.getElementById('speakBtn');
+                this.clearBtn = document.getElementById('clearBtn');
+                this.checkBtn = document.getElementById('checkBtn');
+                this.skipBtn = document.getElementById('skipBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                this.configBtn = document.getElementById('configBtn');
+                this.wordConfig = document.getElementById('wordConfig');
+                this.newWordInput = document.getElementById('newWordInput');
+                this.addWordBtn = document.getElementById('addWordBtn');
+                this.wordList = document.getElementById('wordList');
+                this.feedback = document.getElementById('feedback');
+                this.canvas = document.getElementById('drawingCanvas');
+                this.instructions = document.getElementById('instructions');
+            }
+
+            initCanvas() {
+                // Initialize handwriting.js canvas exactly like the example
+                this.handwritingCanvas = new handwriting.Canvas(this.canvas, 3);
+
+                // Set canvas dimensions like in the example
+                const container = this.canvas.parentElement;
+                // const containerWidth = container.clientWidth;
+                // const canvasSize = containerWidth < 400 ? containerWidth : 400;
+
+                this.handwritingCanvas.cxt.canvas.width = 570;
+                this.handwritingCanvas.cxt.canvas.height = 300;
+
+                console.log(container.width, container.height);
+
+                // Set callback for handwriting recognition results
+                this.handwritingCanvas.setCallBack((data, err) => {
+                    if (err) {
+                        console.error('Handwriting recognition error:', err);
+                        this.showFeedback('Error en el reconocimiento. ¡Inténtalo de nuevo!', 'incorrect');
+                    } else {
+                        console.log('Handwriting results:', data);
+                        this.processHandwritingResults(data);
+                    }
+                });
+
+                // Set options for Spanish recognition
+                this.handwritingCanvas.setOptions({
+                    language: 'es',
+                    numOfReturn: 5,
+                    // numOfWords: 5
+                });
+
+                console.log('✅ Handwriting.js canvas initialized successfully');
+            }
+
+            initSpeechSynthesis() {
+                if ('speechSynthesis' in window) {
+                    this.synthesis = window.speechSynthesis;
+                } else {
+                    this.speakBtn.disabled = true;
+                    this.showFeedback('Tu navegador no soporta síntesis de voz', 'incorrect');
+                }
+            }
+
+            bindEvents() {
+                this.speakBtn.addEventListener('click', () => this.speakCurrentWord());
+                this.clearBtn.addEventListener('click', () => this.clearCanvas());
+                this.checkBtn.addEventListener('click', () => this.checkWriting());
+                this.skipBtn.addEventListener('click', () => this.nextWord());
+                this.resetBtn.addEventListener('click', () => this.resetScore());
+                this.configBtn.addEventListener('click', () => this.toggleConfig());
+                this.addWordBtn.addEventListener('click', () => this.addWord());
+                this.newWordInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.addWord();
+                });
+            }
+
+            toggleConfig() {
+                const isVisible = this.wordConfig.style.display !== 'none';
+                this.wordConfig.style.display = isVisible ? 'none' : 'block';
+            }
+
+            addWord() {
+                const newWord = this.newWordInput.value.trim().toLowerCase();
+                if (newWord && !this.words.includes(newWord) && newWord.length >= 2) {
+                    this.words.push(newWord);
+                    this.newWordInput.value = '';
+                    this.updateWordList();
+                    this.saveData();
+                    this.showFeedback(`Palabra "${newWord}" agregada!`, 'correct');
+                }
+            }
+
+            removeWord(word) {
+                const index = this.words.indexOf(word);
+                if (index > -1 && this.words.length > 1) {
+                    this.words.splice(index, 1);
+                    this.updateWordList();
+                    this.saveData();
+                    this.showFeedback(`Palabra "${word}" eliminada!`, 'neutral');
+                }
+            }
+
+            updateWordList() {
+                this.wordList.innerHTML = '';
+                this.words.forEach(word => {
+                    const tag = document.createElement('span');
+                    tag.className = 'word-tag';
+                    tag.innerHTML = `${word} <span style="margin-left: 5px; cursor: pointer;">❌</span>`;
+                    tag.addEventListener('click', (e) => {
+                        if (e.target.textContent === '❌') {
+                            this.removeWord(word);
+                        }
+                    });
+                    this.wordList.appendChild(tag);
+                });
+            }
+
+            nextWord() {
+                this.currentWord = this.words[Math.floor(Math.random() * this.words.length)];
+                this.wordDisplay.textContent = '🎧 Escucha la palabra';
+                this.clearCanvas();
+                this.showFeedback('¡Nueva palabra! Presiona "Escuchar" para oírla.', 'neutral');
+            }
+
+            speakCurrentWord() {
+                if (!this.currentWord) {
+                    this.nextWord();
+                }
+                this.speakText(this.currentWord);
+                this.showFeedback(`Escribe: "${this.currentWord}"`, 'neutral');
+            }
+
+            speakText(message) {
+                if (!this.synthesis) return;
+
+                this.synthesis.cancel();
+
+                const voices = this.synthesis.getVoices();
+                const femaleVoice = (
+                    voices.find((v) => v.name.toLowerCase().includes('paulina')) ||
+                    voices.find((v) => v.name.includes('es-AR') || v.lang === 'es-AR') ||
+                    voices.find((v) => v.name.includes('es-MX') || v.lang === 'es-MX')
+                );
+
+                const utterance = new SpeechSynthesisUtterance(message);
+
+                if (femaleVoice) {
+                    utterance.voice = femaleVoice;
+                } else {
+                    utterance.lang = 'es-AR';
+                }
+
+                utterance.rate = 0.8;
+                utterance.pitch = 1.1;
+                utterance.volume = 1.0;
+
+                this.synthesis.speak(utterance);
+            }
+
+            clearCanvas() {
+                if (this.handwritingCanvas) {
+                    this.handwritingCanvas.erase();
+                }
+            }
+
+            checkWriting() {
+                if (!this.currentWord) {
+                    this.showFeedback('Primero presiona "Escuchar" para obtener una palabra.', 'neutral');
+                    return;
+                }
+
+                if (!this.handwritingCanvas) {
+                    this.showFeedback('El sistema de reconocimiento no está listo. ¡Inténtalo de nuevo!', 'incorrect');
+                    return;
+                }
+
+                // Check if there's any drawing on the canvas
+                if (!this.handwritingCanvas.trace || this.handwritingCanvas.trace.length === 0) {
+                    this.showFeedback('¡Escribe algo en el canvas primero!', 'incorrect');
+                    return;
+                }
+
+                this.showFeedback('🔍 Analizando tu escritura...', 'neutral');
+
+                // Trigger handwriting recognition exactly like the example
+                this.handwritingCanvas.recognize();
+            }
+
+            processHandwritingResults(results) {
+                if (!results || results.length === 0) {
+                    this.showFeedback('No se pudo reconocer la escritura. ¡Inténtalo escribiendo más claro!', 'incorrect');
+                    return;
+                }
+
+                const targetWord = this.currentWord.toLowerCase().trim();
+                console.log('Target word:', targetWord);
+                console.log('Recognition results:', results);
+
+                // Check if any of the results match the target word
+                for (const result of results) {
+                    const recognizedWord = result.toLowerCase().trim();
+
+                    if (recognizedWord === targetWord) {
+                        this.handleCorrectAnswer();
+                        return;
+                    }
+                }
+
+                // No match found
+                const bestResult = results[0];
+                this.showFeedback(`Reconocí "${bestResult}", pero la palabra era "${this.currentWord}". ¡Inténtalo de nuevo!`, 'incorrect');
+                this.speakText('Inténtalo escribiendo más claramente');
+            }
+
+            handleCorrectAnswer() {
+                this.score++;
+                this.saveData();
+                this.scoreElement.textContent = this.score;
+                this.showFeedback(`¡Correcto! Escribiste "${this.currentWord}" perfectamente! 🎉`, 'correct');
+                this.speakText('¡Muy bien! ¡Correcto!');
+                setTimeout(() => this.nextWord(), 3000);
+            }
+
+            calculateSimilarity(str1, str2) {
+                const longer = str1.length > str2.length ? str1 : str2;
+                const shorter = str1.length > str2.length ? str2 : str1;
+
+                if (longer.length === 0) return 1.0;
+
+                const distance = this.levenshteinDistance(longer, shorter);
+                return (longer.length - distance) / longer.length;
+            }
+
+            levenshteinDistance(str1, str2) {
+                const matrix = [];
+
+                for (let i = 0; i <= str2.length; i++) {
+                    matrix[i] = [i];
+                }
+
+                for (let j = 0; j <= str1.length; j++) {
+                    matrix[0][j] = j;
+                }
+
+                for (let i = 1; i <= str2.length; i++) {
+                    for (let j = 1; j <= str1.length; j++) {
+                        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                            matrix[i][j] = matrix[i - 1][j - 1];
+                        } else {
+                            matrix[i][j] = Math.min(
+                                matrix[i - 1][j - 1] + 1,
+                                matrix[i][j - 1] + 1,
+                                matrix[i - 1][j] + 1
+                            );
+                        }
+                    }
+                }
+
+                return matrix[str2.length][str1.length];
+            }
+
+            showFeedback(message, type) {
+                this.feedback.textContent = message;
+                this.feedback.className = `feedback ${type}`;
+            }
+
+            loadData() {
+                try {
+                    const savedData = localStorage.getItem('kidsGamesData');
+                    if (savedData) {
+                        const gamesData = JSON.parse(savedData);
+                        if (gamesData.writing) {
+                            if (typeof gamesData.writing.score === 'number') {
+                                this.score = gamesData.writing.score;
+                                this.scoreElement.textContent = this.score;
+                            }
+                            if (Array.isArray(gamesData.writing.words) && gamesData.writing.words.length > 0) {
+                                this.words = gamesData.writing.words;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading data:', error);
+                }
+            }
+
+            saveData() {
+                try {
+                    let gamesData = {};
+                    const savedData = localStorage.getItem('kidsGamesData');
+                    if (savedData) {
+                        gamesData = JSON.parse(savedData);
+                    }
+
+                    if (!gamesData.writing) {
+                        gamesData.writing = {};
+                    }
+
+                    gamesData.writing.score = this.score;
+                    gamesData.writing.words = this.words;
+                    gamesData.writing.lastPlayed = new Date().toISOString();
+
+                    localStorage.setItem('kidsGamesData', JSON.stringify(gamesData));
+                } catch (error) {
+                    console.error('Error saving data:', error);
+                }
+            }
+
+            resetScore() {
+                if (confirm('¿Estás seguro de que quieres resetear tu puntuación?')) {
+                    this.score = 0;
+                    this.scoreElement.textContent = this.score;
+                    this.saveData();
+                    this.showFeedback('¡Puntuación reseteada! ¡A escribir desde cero! ✍️', 'neutral');
+                    this.speakText('Puntuación reseteada. ¡A escribir!');
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new WritingGame();
+        });
+    </script>
+</body>
+</html>
